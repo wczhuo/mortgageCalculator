@@ -3,7 +3,13 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "房贷计算器"
+			}
+		},
+		{
+			"path": "pages/index/calculate",
+			"style": {
+				"navigationBarTitleText": "房贷计算器"
 			}
 		}
 	],
