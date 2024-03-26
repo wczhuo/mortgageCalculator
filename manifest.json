@@ -1,5 +1,5 @@
 {
-    "name" : "mortgageCalculator",
+    "name" : "算房贷",
     "appid" : "__UNI__54E116A",
     "description" : "房贷计算器",
     "versionName" : "1.0.0",
@@ -42,13 +42,9 @@
                 "minSdkVersion" : 21
             },
             /* ios打包配置 */
-            "ios" : {
-                "dSYMs" : false
-            },
+            "ios" : {},
             /* SDK配置 */
-            "sdkConfigs" : {
-                "ad" : {}
-            },
+            "sdkConfigs" : {},
             "icons" : {
                 "android" : {
                     "hdpi" : "unpackage/res/icons/72x72.png",
