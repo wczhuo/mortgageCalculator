@@ -1,5 +1,5 @@
 {
-    "name" : "算房贷",
+    "name" : "计算器",
     "appid" : "__UNI__54E116A",
     "description" : "房贷计算器",
     "versionName" : "1.0.0",
@@ -42,9 +42,13 @@
                 "minSdkVersion" : 21
             },
             /* ios打包配置 */
-            "ios" : {},
+            "ios" : {
+                "dSYMs" : false
+            },
             /* SDK配置 */
-            "sdkConfigs" : {},
+            "sdkConfigs" : {
+                "ad" : {}
+            },
             "icons" : {
                 "android" : {
                     "hdpi" : "unpackage/res/icons/72x72.png",
