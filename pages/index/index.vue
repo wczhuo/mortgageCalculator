@@ -310,7 +310,7 @@
 					}
 					mouthdataArray[i - 1] = {
 						monthName: realmonth + "月",
-						yuegong: yuegong.toFixed(2),
+						yuegong: (yuelixi + everymonthyh).toFixed(2),
 						yuelixi: yuelixi.toFixed(2),
 						//每月本金
 						yuebenjin: everymonthyh.toFixed(2),

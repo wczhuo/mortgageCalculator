@@ -1,0 +1,297 @@
+// 模态框
+.mask {
+	background-color: rgba(0, 0, 0, 0.5);
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+
+	.dialog {
+		// margin: 400rpx 50rpx 0rpx 50rpx;
+		position: absolute;
+		// left: 50rpx;
+		// top: 500rpx;
+		display: flex;
+		flex-direction: column;
+		.content {
+			border-radius: 40rpx;
+			width: 650rpx;
+			background-color: #FFF;
+			padding: 70rpx 50rpx 70rpx 50rpx;
+			.title {
+				text-align: center;
+				color: #FF009E;
+				font-size: 40rpx;
+			}
+			.list{
+				margin-top: 40rpx;
+				font-size: 28rpx;
+				color: #000000;
+				text-align: left;
+			}
+		}
+		.close {
+			text-align: center;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-top: 50rpx;
+		}
+	}
+	
+	.bottom{
+		bottom: 0;
+		left: 0;
+	}
+}
+// 模态框
+.mask-cancel{
+	background-color: rgba(0, 0, 0, 0.5);
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+	
+	.bottom{
+		bottom: 0;
+		left: 0;
+	}
+	.dialog{
+		background-color: #FFF;
+		width: 750rpx;
+		// margin: 400rpx 0rpx 0rpx 0rpx;
+		border-radius: 40rpx;
+		display: flex;
+		flex-direction: column;
+		padding: 50rpx 50rpx 50rpx 50rpx;
+		position: absolute;
+	}
+}
+
+.mask-confirm{
+	background-color: rgba(0, 0, 0, 0.5);
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+	.dialog{
+		background-color: #FFF;
+		width: 662rpx;
+		margin-left: 44rpx;
+		// margin: 400rpx 0rpx 0rpx 0rpx;
+		border-radius: 40rpx;
+		display: flex;
+		flex-direction: column;
+		padding: 50rpx 50rpx 70rpx 50rpx;
+		position: absolute;
+		.content{
+			color: #000;
+			font-family: ABeeZee;
+			font-size: 35rpx;
+			font-style: normal;
+			font-weight: 400;
+			text-align: center;
+			margin-top: 40rpx;
+		}
+		.btn-box{
+			margin-top: 60rpx;
+			.left{
+				flex: 1;
+				.cancel{
+					background-color: white;
+					border: 4rpx solid #FF009E;
+					border-radius: 18rpx;
+					color: #FF009E;
+					height: 88rpx;
+					line-height: 80rpx;
+					font-family: ABeeZee;
+				}
+				padding-right: 20rpx;
+			}
+			.right{
+				flex: 1;
+				.confirm{
+					color: white;
+					background-color: #FF009E;
+					border: 4rpx solid #FF009E;
+					border-radius: 18rpx;
+					height: 88rpx;
+					line-height: 80rpx;
+					font-family: ABeeZee;
+				}
+				padding-left: 20rpx;
+			}
+		}
+	}
+}
+
+
+// 填充行
+.fill-box {
+	height: 140rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-60 {
+	height: 60rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-80 {
+	height: 80rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-100 {
+	height: 100rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-120 {
+	height: 120rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-160 {
+	height: 160rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-200 {
+	height: 200rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-240 {
+	height: 240rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-280 {
+	height: 280rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.fill-box-320 {
+	height: 300rpx;
+	width: 100%;
+	color: transparent;
+}
+
+.flex-row{
+	display: flex;
+	flex-direction: row;
+}
+
+.flex-column{
+	display: flex;
+	flex-direction: column;
+}
+
+// 强行居中
+.force-center{
+	text-align: center;
+	justify-content: center;
+	align-items: center;
+}
+
+// swtich开关样式
+switch::after,
+switch::before {
+	content: "";
+}
+
+// 溢出省略
+.ellipsis-line-1{
+	overflow : hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+}
+.ellipsis-line-2{
+	overflow : hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+// 空
+.empty-result{
+	width: 100%;
+	height: 200rpx;
+	line-height: 200rpx;
+	font-size: 36rpx;
+	text-align: center;
+	color: #737373;
+}
+
+.hidden{
+	display: none;
+}
+
+.mt-20{
+	margin-top: 20rpx;
+}
+.mt-40{
+	margin-top: 40rpx;
+}
+.ml-20{
+	margin-left: 20rpx;
+}
+.ml-40{
+	margin-left: 40rpx;
+}
+.mr-20{
+	margin-right: 20rpx;
+}
+.mr-40{
+	margin-right: 40rpx;
+}
+.mb-20{
+	margin-bottom: 20rpx;
+}
+.mb-40{
+	margin-bottom: 40rpx;
+}
+
+.pt-20{
+	padding-top: 20rpx;
+}
+.pt-40{
+	padding-top: 40rpx;
+}
+.pl-20{
+	padding-left: 20rpx;
+}
+.pl-40{
+	padding-left: 40rpx;
+}
+.pr-20{
+	padding-right: 20rpx;
+}
+.pr-40{
+	padding-right: 40rpx;
+}
+.pb-20{
+	padding-bottom: 20rpx;
+}
+.pb-40{
+	padding-bottom: 40rpx;
+}
