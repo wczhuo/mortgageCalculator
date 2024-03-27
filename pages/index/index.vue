@@ -125,6 +125,7 @@
 </template>
 
 <script>
+	import { navigateTo } from '@/static/js/common';
 	export default {
 		data() {
 			return {
@@ -170,13 +171,6 @@
 				console.log(this.resultList);
 				this.$forceUpdate();
 			},
-			navigateTo(path, params = null) {
-				console.log(path, params);
-				uni.setStorageSync('queryString', params);
-				uni.navigateTo({
-					url: path
-				});
-			},
 			startCalculate() {
 				let params = this.currentTab == 1 ? this.providentFund : this.commercialLoans;
 				if (this.currentTab == 3) {
@@ -194,7 +188,7 @@
 						this.calculatePortfolioLoan(this.providentFund, this.commercialLoans);
 						break;
 				}
-				// this.navigateTo('/pages/index/calculate', params);
+				navigateTo('/pages/index/calculate', params);
 				// 保存数据到本地
 				uni.setStorageSync('providentFund', this.providentFund);
 				uni.setStorageSync('commercialLoans', this.commercialLoans);
