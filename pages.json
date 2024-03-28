@@ -17,6 +17,12 @@
 			"style": {
 				"navigationBarTitleText": "存款利率"
 			}
+		},
+		{
+			"path": "pages/index/music",
+			"style": {
+				"navigationBarTitleText": "音乐"
+			}
 		}
 	],
 	"globalStyle": {
@@ -42,6 +48,12 @@
 				"iconPath": "static/image/bankSavings.png",
 				"selectedIconPath": "static/image/bankSavings.png",
 				"text": "存款"
+			},
+			{
+				"pagePath": "pages/index/music",
+				"iconPath": "static/image/music.png",
+				"selectedIconPath": "static/image/music.png",
+				"text": "音乐"
 			}
 		]
 	}
