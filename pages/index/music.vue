@@ -7,6 +7,10 @@
 			<view class="item" :class="playMode=='desc'?'active':''" @tap="setPlayMode('desc')">倒序播放</view>
 			<view class="item" @tap="play">播放/暂停</view>
 		</view>
+		<view class="process-box flex-row">
+			<progress class="process" :percent="current.duration" stroke-width="3" />
+			<view class="duration">{{current.duration}}</view>
+		</view>
 		<view class="music-list flex-column" v-for="(item,index) in musicList">
 			<view class="item" :class="currentFile==item?'active':''" @tap="playMusic(item, index)">{{item}}</view>
 		</view>
@@ -92,8 +96,10 @@
 			console.log("currentFile 2", that.currentFile);
 
 			that.innerAudioContext.src = "file://" + that.folder + "/" + that.currentFile;
+			that.current.duration = that.innerAudioContext.duration;
 			that.innerAudioContext.onPlay(() => {
 				console.log('开始播放');
+				that.current.duration = that.innerAudioContext.duration;
 			});
 			that.innerAudioContext.onError((res) => {
 				console.log(res.errMsg);
@@ -212,6 +218,16 @@
 
 			.active {
 				font-weight: bold;
+			}
+		}
+		
+		.process-box{
+			padding: 0rpx 40rpx;
+			.process{
+				width: 580rpx;
+			}
+			.duration{
+				width: 50rpx;
 			}
 		}
 	}
