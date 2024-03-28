@@ -43,7 +43,15 @@
 		onLoad() {
 			let that = this;
 
-			that.currentFile = uni.getStorageSync('currentFile');
+			if (uni.getStorageSync('currentFile')) {
+				that.currentFile = uni.getStorageSync('currentFile');
+			}
+			if (uni.getStorageSync('currentFileIndex')) {
+				that.currentFileIndex = uni.getStorageSync('currentFileIndex');
+			}
+			if (uni.getStorageSync('playMode')) {
+				that.playMode = uni.getStorageSync('playMode');
+			}
 
 			// #ifdef APP-PLUS
 			plus.io.resolveLocalFileSystemURL(
@@ -55,7 +63,7 @@
 							for (var i = 0; i < entries.length; i++) {
 								console.log("文件信息：" + entries[i].name);
 								that.musicList.push(entries[i].name);
-								
+
 								if (!that.currentFile) {
 									that.currentFile = that.musicList[0];
 									that.currentFileIndex = 0;
@@ -89,32 +97,32 @@
 				console.log(res.errMsg);
 				console.log(res.errCode);
 			});
-			
+
 			that.innerAudioContext.onEnded(() => {
 				console.log('播放结束，下一首');
-				if(that.playMode == 'asc'){
+				if (that.playMode == 'asc') {
 					// 正序播放
-					if(that.currentFileIndex < (that.musicList.length - 1)){
+					if (that.currentFileIndex < (that.musicList.length - 1)) {
 						that.currentFileIndex = that.currentFileIndex + 1;
 					} else {
 						that.currentFileIndex = 0;
 					}
 					that.currentFile = that.musicList[that.currentFileIndex];
 					that.playMusic(that.currentFile, that.currentFileIndex);
-				} else if(that.playMode == 'desc'){
+				} else if (that.playMode == 'desc') {
 					// 倒序播放
 					// 正序播放
-					if(that.currentFileIndex > 0 ){
+					if (that.currentFileIndex > 0) {
 						that.currentFileIndex = that.currentFileIndex - 1;
 					} else {
 						that.currentFileIndex = that.musicList.length - 1;
 					}
 					that.currentFile = that.musicList[that.currentFileIndex];
 					that.playMusic(that.currentFile, that.currentFileIndex);
-				} else if(that.playMode == 'single'){
+				} else if (that.playMode == 'single') {
 					// 单曲循环
 					that.playMusic(that.currentFile, that.currentFileIndex);
-				} else if(that.playMode == 'random'){
+				} else if (that.playMode == 'random') {
 					// 随机播放
 					that.currentFileIndex = Math.floor(Math.random() * 10 * that.musicList.length);
 					that.currentFile = that.musicList[that.currentFileIndex];
@@ -151,8 +159,9 @@
 				that.innerAudioContext.src = "file://" + that.folder + "/" + file;
 				that.innerAudioContext.play();
 				uni.setStorageSync('currentFile', that.currentFile);
+				uni.setStorageSync('currentFileIndex', that.currentFileIndex);
 			},
-			setPlayMode(mode){
+			setPlayMode(mode) {
 				this.playMode = mode;
 			}
 		},
@@ -177,8 +186,8 @@
 				text-align: center;
 				flex: 1;
 			}
-			
-			.active{
+
+			.active {
 				font-weight: bold;
 			}
 		}
