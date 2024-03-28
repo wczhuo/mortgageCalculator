@@ -28,6 +28,8 @@
 					author: '暂无',
 					src: 'https://web-ext-storage.dcloud.net.cn/uni-app/ForElise.mp3',
 					// src: '@/static/半壶纱-刘珂矣.flac',
+					duration: 0,
+					seek: 0,
 				},
 				audioAction: {
 					method: 'pause'
