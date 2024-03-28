@@ -11,6 +11,12 @@
 			"style": {
 				"navigationBarTitleText": "房贷计算器"
 			}
+		},
+		{
+			"path": "pages/index/bankSavings",
+			"style": {
+				"navigationBarTitleText": "存款利率"
+			}
 		}
 	],
 	"globalStyle": {
@@ -19,5 +25,24 @@
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	},
-	"uniIdRouter": {}
+	"uniIdRouter": {},
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#3cc51f",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+				"pagePath": "pages/index/index",
+				"iconPath": "static/image/loan.png",
+				"selectedIconPath": "static/image/loan.png",
+				"text": "房贷"
+			},
+			{
+				"pagePath": "pages/index/bankSavings",
+				"iconPath": "static/image/bankSavings.png",
+				"selectedIconPath": "static/image/bankSavings.png",
+				"text": "存款"
+			}
+		]
+	}
 }

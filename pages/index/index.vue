@@ -188,7 +188,7 @@
 						this.calculatePortfolioLoan(this.providentFund, this.commercialLoans);
 						break;
 				}
-				navigateTo('/pages/index/calculate', params);
+				// navigateTo('/pages/index/calculate', params);
 				// 保存数据到本地
 				uni.setStorageSync('providentFund', this.providentFund);
 				uni.setStorageSync('commercialLoans', this.commercialLoans);
