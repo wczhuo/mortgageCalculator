@@ -75,13 +75,11 @@
 			if (uni.getStorageSync('music.current')) {
 				let current = uni.getStorageSync('music.current');
 				for (var i in current) {
-					if (that.current[i]) {
-						that.current[i] = current[i];
-					}
+					that.current[i] = current[i];
 				}
-				// that.current = uni.getStorageSync('music.current');
 			}
 			console.log('current ', JSON.stringify(uni.getStorageSync('music.current')));
+			console.log('current ', JSON.stringify(that.current));
 
 			// #ifdef APP-PLUS
 			plus.io.resolveLocalFileSystemURL(
