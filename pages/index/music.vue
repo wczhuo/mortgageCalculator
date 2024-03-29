@@ -24,7 +24,8 @@
 			</view>
 		</view>
 		<view class="music-list flex-column" v-for="(item,index) in musicList">
-			<view class="item" :class="current.file == item ? 'active' : ''" @tap="playMusic(item, index)">{{item}}</view>
+			<view class="item" :class="current.file == item ? 'active' : ''" @tap="playMusic(item, index)">{{item}}
+			</view>
 		</view>
 		<view class="fill-box-60"></view>
 	</view>
@@ -42,7 +43,7 @@
 					duration: 0,
 					currentTime: 0,
 					seek: 0,
-					state: 'play',// pause
+					state: 'play', // pause
 					file: '',
 					index: 0,
 					mode: 'asc',
@@ -73,8 +74,8 @@
 
 			if (uni.getStorageSync('music.current')) {
 				let current = uni.getStorageSync('music.current');
-				for(var i in current){
-					if(that.current[i]){
+				for (var i in current) {
+					if (that.current[i]) {
 						that.current[i] = current[i];
 					}
 				}
@@ -164,26 +165,27 @@
 						that.current.index = 0;
 					}
 					that.current.file = that.musicList[that.current.index];
-					that.playMusic(that.current.file, that.current.index);
+					// that.playMusic(that.current.file, that.current.index);
 				} else if (that.current.playMode == 'desc') {
 					// 倒序播放
-					// 正序播放
 					if (that.current.index > 0) {
 						that.current.index = that.current.index - 1;
 					} else {
 						that.current.index = that.musicList.length - 1;
 					}
 					that.current.file = that.musicList[that.current.index];
-					that.playMusic(that.current.file, that.current.index);
+					// that.playMusic(that.current.file, that.current.index);
 				} else if (that.current.playMode == 'single') {
 					// 单曲循环
-					that.playMusic(that.current.file, that.current.index);
+					// that.playMusic(that.current.file, that.current.index);
 				} else if (that.current.playMode == 'random') {
 					// 随机播放
-					that.current.index = Math.floor(Math.random() * 10 * that.musicList.length);
+					that.current.index = Math.floor(Math.random() * that.musicList.length);
+					console.log(that.current.index);
 					that.current.file = that.musicList[that.current.index];
-					that.playMusic(that.current.file, that.current.index);
 				}
+				console.log(that.current.playMode, that.current.file, that.current.index);
+				that.playMusic(that.current.file, that.current.index);
 			});
 
 			if (that.innerAudioContext) {
