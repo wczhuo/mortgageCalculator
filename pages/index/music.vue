@@ -69,12 +69,13 @@
 		onLoad() {
 			let that = this;
 
+			// 计算进度条实际的长度
 			that.processWidth = that.systemInfo.screenWidth * 670 / 750;
 			console.log('processWidth', that.processWidth);
 
 			if (uni.getStorageSync('music.current')) {
 				let current = uni.getStorageSync('music.current');
-				// 避免新增的字段再覆盖时丢失
+				// 避免新增的字段在覆盖时丢失
 				for (var i in current) {
 					that.current[i] = current[i];
 				}
@@ -109,24 +110,26 @@
 				});
 			// #endif
 
-
+			// 
 			if (!that.current.file) {
 				that.current.file = that.musicList[0];
+				that.current.index = 0;
 				that.saveCurrent();
 			}
-
+			
+			// 自动播放，需在设置src之前
 			that.innerAudioContext.autoplay = true;
 			that.innerAudioContext.src = "file://" + that.folder + "/" + that.current.file;
 			that.current.duration = that.innerAudioContext.duration;
 			if (that.current.currentTime > 0) {
 				console.log("currentTime ", that.current.currentTime);
 				// 单位为秒，必须是整数
-				setTimeout(function() {
+				//setTimeout(function() {
 					// console.log("currentTime set");
 					// that.innerAudioContext.pause();
 					// that.innerAudioContext.seek(parseInt(that.current.currentTime));
 					// that.innerAudioContext.play();
-				}, 1000);
+				//}, 1000);
 			}
 			// that.innerAudioContext.play();
 
@@ -138,6 +141,7 @@
 				}
 				that.current.duration = that.innerAudioContext.duration;
 			});
+			
 			that.innerAudioContext.onError((res) => {
 				console.log(res.errMsg);
 				console.log(res.errCode);
@@ -186,18 +190,6 @@
 				console.log(that.current.playMode, that.current.file, that.current.index);
 				that.playMusic(that.current.file, that.current.index);
 			});
-
-			if (that.innerAudioContext) {
-				try {
-					// console.log("pause destroy");
-					// innerAudioContext.play();
-					// innerAudioContext.pause();
-					// innerAudioContext.destroy()
-					// that.innerAudioContext = null
-				} catch (e) {
-					//TODO handle the exception
-				}
-			}
 		},
 		methods: {
 			onProgressChange(event) {
