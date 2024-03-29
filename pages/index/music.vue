@@ -74,6 +74,7 @@
 
 			if (uni.getStorageSync('music.current')) {
 				let current = uni.getStorageSync('music.current');
+				// 避免新增的字段再覆盖时丢失
 				for (var i in current) {
 					that.current[i] = current[i];
 				}
