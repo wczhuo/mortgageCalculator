@@ -1,18 +1,30 @@
 <template>
 	<view class="content flex-column">
 		<view class="action-list flex-row mt-40">
-			<view class="item" :class="playMode=='asc'?'active':''" @tap="setPlayMode('asc')">顺序播放</view>
-			<view class="item" :class="playMode=='single'?'active':''" @tap="setPlayMode('single')">单曲循环</view>
-			<view class="item" :class="playMode=='random'?'active':''" @tap="setPlayMode('random')">随机播放</view>
-			<view class="item" :class="playMode=='desc'?'active':''" @tap="setPlayMode('desc')">倒序播放</view>
-			<view class="item" @tap="play">播放/暂停</view>
+			<view class="item" :class="current.playMode=='asc'?'active':''" @tap="setPlayMode('asc')">顺序播放</view>
+			<view class="item" :class="current.playMode=='single'?'active':''" @tap="setPlayMode('single')">单曲循环</view>
+			<view class="item" :class="current.playMode=='random'?'active':''" @tap="setPlayMode('random')">随机播放</view>
+			<view class="item" :class="current.playMode=='desc'?'active':''" @tap="setPlayMode('desc')">倒序播放</view>
+			<view class="item" :class="current.state=='play'?'active':''" @tap="play">播放/暂停</view>
 		</view>
 		<view class="process-box flex-row">
-			<progress class="process" :percent="current.duration" stroke-width="3" />
-			<view class="duration">{{current.duration}}</view>
+			<view class="slider-container" :style="'width:'+(process.slideBarWidth)+'rpx'">
+				<movable-area class="sliderBar" :style="'width:'+process.slideBarWidth+'rpx;'">
+					<!-- 蓝色背景条 -->
+					<view class="gone" :style="{width: process.x +'rpx'}"></view>
+
+					<movable-view class="slider" direction="horizontal" :x="process.x * systemInfo.windowWidth / 750"
+						@change="onProgressChange" @touchend="onProgressTouchEnd">
+						<text>{{ process.score }}</text>
+					</movable-view>
+				</movable-area>
+
+				<!-- 灰色背景条 -->
+				<view :style="{width: (process.minScore / process.maxScore) * 100 +'%'}"></view>
+			</view>
 		</view>
 		<view class="music-list flex-column" v-for="(item,index) in musicList">
-			<view class="item" :class="currentFile==item?'active':''" @tap="playMusic(item, index)">{{item}}</view>
+			<view class="item" :class="current.file == item ? 'active' : ''" @tap="playMusic(item, index)">{{item}}</view>
 		</view>
 		<view class="fill-box-60"></view>
 	</view>
@@ -27,37 +39,48 @@
 			return {
 				innerAudioContext: uni.createInnerAudioContext(),
 				current: {
-					poster: 'https://qiniu-web-assets.dcloud.net.cn/unidoc/zh/music-a.png',
-					name: '致爱丽丝',
-					author: '暂无',
-					src: 'https://web-ext-storage.dcloud.net.cn/uni-app/ForElise.mp3',
-					// src: '@/static/半壶纱-刘珂矣.flac',
 					duration: 0,
+					currentTime: 0,
 					seek: 0,
-				},
-				audioAction: {
-					method: 'pause'
+					state: 'play',// pause
+					file: '',
+					index: 0,
+					mode: 'asc',
+					playMode: 'asc', // random asc desc single
 				},
 				musicList: [],
 				folder: "/storage/emulated/0/Music/合集一",
-				currentState: 'play', // pause
-				currentFile: '',
-				currentFileIndex: 0,
-				playMode: 'asc', // random asc desc single
+				max: 100,
+				min: 0,
+				process: {
+					slideBarWidth: 670,
+					minScore: this.min ? this.min : 0,
+					maxScore: this.max ? this.max : 100,
+					score: 0,
+					x: 0,
+					y: 0,
+				},
+				setSeek: true,
+				systemInfo: uni.getSystemInfoSync(),
+				processWidth: 0,
 			}
 		},
 		onLoad() {
 			let that = this;
 
-			if (uni.getStorageSync('currentFile')) {
-				that.currentFile = uni.getStorageSync('currentFile');
+			that.processWidth = that.systemInfo.screenWidth * 670 / 750;
+			console.log('processWidth', that.processWidth);
+
+			if (uni.getStorageSync('music.current')) {
+				let current = uni.getStorageSync('music.current');
+				for(var i in current){
+					if(that.current[i]){
+						that.current[i] = current[i];
+					}
+				}
+				// that.current = uni.getStorageSync('music.current');
 			}
-			if (uni.getStorageSync('currentFileIndex')) {
-				that.currentFileIndex = uni.getStorageSync('currentFileIndex');
-			}
-			if (uni.getStorageSync('playMode')) {
-				that.playMode = uni.getStorageSync('playMode');
-			}
+			console.log('current ', JSON.stringify(uni.getStorageSync('music.current')));
 
 			// #ifdef APP-PLUS
 			plus.io.resolveLocalFileSystemURL(
@@ -67,13 +90,13 @@
 					directoryReader.readEntries(
 						function(entries) { //历遍子目录即可
 							for (var i = 0; i < entries.length; i++) {
-								console.log("文件信息：" + entries[i].name);
+								// console.log("文件信息：" + entries[i].name);
 								that.musicList.push(entries[i].name);
 
-								if (!that.currentFile) {
-									that.currentFile = that.musicList[0];
-									that.currentFileIndex = 0;
-									uni.setStorageSync('currentFile', that.currentFile);
+								if (!that.current.file) {
+									that.current.file = that.musicList[0];
+									that.current.index = 0;
+									that.saveCurrent();
 								}
 							}
 						},
@@ -86,19 +109,33 @@
 				});
 			// #endif
 
-			that.innerAudioContext.autoplay = true;
 
-			console.log("currentFile 1", that.currentFile);
-			if (!that.currentFile) {
-				that.currentFile = that.musicList[0];
-				uni.setStorageSync('currentFile', that.currentFile);
+			if (!that.current.file) {
+				that.current.file = that.musicList[0];
+				that.saveCurrent();
 			}
-			console.log("currentFile 2", that.currentFile);
 
-			that.innerAudioContext.src = "file://" + that.folder + "/" + that.currentFile;
+			that.innerAudioContext.autoplay = true;
+			that.innerAudioContext.src = "file://" + that.folder + "/" + that.current.file;
 			that.current.duration = that.innerAudioContext.duration;
+			if (that.current.currentTime > 0) {
+				console.log("currentTime ", that.current.currentTime);
+				// 单位为秒，必须是整数
+				setTimeout(function() {
+					// console.log("currentTime set");
+					// that.innerAudioContext.pause();
+					// that.innerAudioContext.seek(parseInt(that.current.currentTime));
+					// that.innerAudioContext.play();
+				}, 1000);
+			}
+			// that.innerAudioContext.play();
+
 			that.innerAudioContext.onPlay(() => {
 				console.log('开始播放');
+				if (that.setSeek) {
+					that.innerAudioContext.seek(parseInt(that.current.currentTime));
+					that.setSeek = false;
+				}
 				that.current.duration = that.innerAudioContext.duration;
 			});
 			that.innerAudioContext.onError((res) => {
@@ -106,41 +143,52 @@
 				console.log(res.errCode);
 			});
 
+			that.innerAudioContext.onTimeUpdate((res) => {
+				that.current.currentTime = that.innerAudioContext.currentTime;
+				that.saveCurrent();
+				// 设置进度条
+				that.process.x = that.innerAudioContext.currentTime / that.innerAudioContext.duration * that
+					.processWidth * (750 / that.systemInfo.windowWidth);
+				that.process.score = that.parseSeconds(that.innerAudioContext.currentTime);
+				console.log('音频播放进度更新', that.innerAudioContext.currentTime, that.innerAudioContext.duration, 'x',
+					that.process.x);
+			});
+
 			that.innerAudioContext.onEnded(() => {
 				console.log('播放结束，下一首');
-				if (that.playMode == 'asc') {
+				if (that.current.playMode == 'asc') {
 					// 正序播放
-					if (that.currentFileIndex < (that.musicList.length - 1)) {
-						that.currentFileIndex = that.currentFileIndex + 1;
+					if (that.current.index < (that.musicList.length - 1)) {
+						that.current.index = that.current.index + 1;
 					} else {
-						that.currentFileIndex = 0;
+						that.current.index = 0;
 					}
-					that.currentFile = that.musicList[that.currentFileIndex];
-					that.playMusic(that.currentFile, that.currentFileIndex);
-				} else if (that.playMode == 'desc') {
+					that.current.file = that.musicList[that.current.index];
+					that.playMusic(that.current.file, that.current.index);
+				} else if (that.current.playMode == 'desc') {
 					// 倒序播放
 					// 正序播放
-					if (that.currentFileIndex > 0) {
-						that.currentFileIndex = that.currentFileIndex - 1;
+					if (that.current.index > 0) {
+						that.current.index = that.current.index - 1;
 					} else {
-						that.currentFileIndex = that.musicList.length - 1;
+						that.current.index = that.musicList.length - 1;
 					}
-					that.currentFile = that.musicList[that.currentFileIndex];
-					that.playMusic(that.currentFile, that.currentFileIndex);
-				} else if (that.playMode == 'single') {
+					that.current.file = that.musicList[that.current.index];
+					that.playMusic(that.current.file, that.current.index);
+				} else if (that.current.playMode == 'single') {
 					// 单曲循环
-					that.playMusic(that.currentFile, that.currentFileIndex);
-				} else if (that.playMode == 'random') {
+					that.playMusic(that.current.file, that.current.index);
+				} else if (that.current.playMode == 'random') {
 					// 随机播放
-					that.currentFileIndex = Math.floor(Math.random() * 10 * that.musicList.length);
-					that.currentFile = that.musicList[that.currentFileIndex];
-					that.playMusic(that.currentFile, that.currentFileIndex);
+					that.current.index = Math.floor(Math.random() * 10 * that.musicList.length);
+					that.current.file = that.musicList[that.current.index];
+					that.playMusic(that.current.file, that.current.index);
 				}
 			});
 
 			if (that.innerAudioContext) {
 				try {
-					console.log("pause destroy");
+					// console.log("pause destroy");
 					// innerAudioContext.play();
 					// innerAudioContext.pause();
 					// innerAudioContext.destroy()
@@ -151,26 +199,66 @@
 			}
 		},
 		methods: {
+			onProgressChange(event) {
+				// console.log(event);
+			},
+			parseSeconds(seconds) {
+				let hours = 0;
+				let minutes = 0;
+				if (seconds >= 3600) {
+					hours = parseInt(seconds / 3600);
+					seconds = seconds % 3600;
+				}
+				if (seconds >= 60) {
+					minutes = parseInt(seconds / 60);
+					seconds = seconds % 60;
+				}
+				let str = minutes + ":" + parseInt(seconds);
+				if (hours > 0) {
+					str = hours + ":" + str;
+				} else {
+					str = str.trimLeft('0').trimLeft(':');
+				}
+				return str;
+			},
+			onProgressTouchEnd(event) {
+				let that = this;
+				console.log('onProgressTouchEnd', event.changedTouches[0].clientX);
+				let x = event.changedTouches[0].clientX;
+				// 先暂定，再设置跳转，再重新播放
+				that.innerAudioContext.pause();
+				let seek = x / that.processWidth * that.innerAudioContext.duration;
+				console.log('x', x, 'processWidth', that.processWidth, 'duration', that.innerAudioContext.duration, 'seek',
+					seek);
+				that.innerAudioContext.seek(seek);
+				that.innerAudioContext.play();
+			},
 			play() {
-				if (this.currentState == 'play') {
-					this.currentState = 'pause';
+				if (this.current.state == 'play') {
+					this.current.state = 'pause';
 					this.innerAudioContext.pause();
 				} else {
-					this.currentState = 'play';
+					this.current.state = 'play';
 					this.innerAudioContext.play();
 				}
+				this.saveCurrent();
 			},
 			playMusic(file, index) {
 				let that = this;
-				that.currentFile = file;
-				that.currentFileIndex = index;
+				that.current.file = file;
+				that.current.index = index;
 				that.innerAudioContext.src = "file://" + that.folder + "/" + file;
 				that.innerAudioContext.play();
-				uni.setStorageSync('currentFile', that.currentFile);
-				uni.setStorageSync('currentFileIndex', that.currentFileIndex);
+
+				that.saveCurrent();
 			},
 			setPlayMode(mode) {
-				this.playMode = mode;
+				this.current.playMode = mode;
+				this.saveCurrent();
+			},
+			saveCurrent() {
+				// console.log("saveCurrent");
+				uni.setStorageSync('music.current', this.current);
 			}
 		},
 	}
@@ -220,14 +308,100 @@
 				font-weight: bold;
 			}
 		}
-		
-		.process-box{
+
+		.process-box {
 			padding: 0rpx 40rpx;
-			.process{
+
+			.process {
 				width: 580rpx;
 			}
-			.duration{
+
+			.duration {
 				width: 50rpx;
+			}
+
+			.slider-container {
+				display: flex;
+				height: 32rpx;
+				position: relative;
+
+				&::before {
+					content: '';
+					position: absolute;
+					height: 8rpx;
+					border-radius: 8rpx;
+					background-color: #EEEEEE;
+					top: 50%;
+					left: 0;
+					transform: translateY(-50%);
+					width: 100%;
+				}
+
+				.flex {
+					flex: 1;
+					height: 8rpx;
+					border-radius: 8rpx 0 0 8rpx;
+					background-color: $uni-color-primary;
+					margin-top: 12rpx;
+					position: relative;
+					z-index: 1;
+				}
+
+				.sliderBar {
+					height: 100%;
+					border-radius: 8rpx;
+
+					.gone {
+						background-color: $uni-color-primary;
+						height: 100%;
+						position: absolute;
+						left: 0;
+						height: 8rpx;
+						top: 12rpx;
+						max-width: 100%;
+						z-index: 1;
+						border-radius: 0 8rpx 8rpx 0;
+					}
+
+					.slider {
+						width: 0;
+						height: 100%;
+						position: relative;
+						z-index: 2;
+
+						&::after {
+							content: '';
+							position: absolute;
+							border-radius: 16rpx;
+							background-color: $uni-color-primary;
+							width: 32rpx;
+							height: 100%;
+							transform: translatex(-50%);
+						}
+
+						text {
+							position: absolute;
+							width: 80rpx;
+							color: white;
+							border-radius: 14rpx;
+							top: -140%;
+							left: 50%;
+							text-align: center;
+							transform: translateX(-50%);
+							background-color: $uni-color-primary;
+
+							&::after {
+								content: '';
+								position: absolute;
+								border: 6rpx solid transparent;
+								border-top-color: $uni-color-primary;
+								top: 99%;
+								left: 50%;
+								transform: translateX(-50%);
+							}
+						}
+					}
+				}
 			}
 		}
 	}

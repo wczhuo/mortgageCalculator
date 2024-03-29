@@ -5,7 +5,7 @@
 				<!-- 蓝色背景条 -->
 				<view class="gone" :style="{width: x +'px'}"></view>
 				
-				<movable-view class="slider" direction="horizontal" :x="x" @change="onChange">
+				<movable-view class="slider" direction="horizontal" :x="x" @change="onChange" @touchend="onTouchEnd">
 					<text>{{ score }}</text>
 				</movable-view>
 			</movable-area>
@@ -46,6 +46,10 @@
 				let barWidth = this.$props.slideBarWidth || 0;
 				this.x = barWidth * (progress / 100.0);
 				this.score = progress;
+			},
+			onTouchEnd(){
+				console.log('onTouchEnd');
+				this.$emit('touchend');
 			},
 			onChange: function(e) {
 				// 手动拖动才生效 
