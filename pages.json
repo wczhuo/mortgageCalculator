@@ -23,6 +23,12 @@
 			"style": {
 				"navigationBarTitleText": "音乐"
 			}
+		},
+		{
+			"path": "pages/index/video",
+			"style": {
+				"navigationBarTitleText": "视频"
+			}
 		}
 	],
 	"globalStyle": {
@@ -54,6 +60,12 @@
 				"iconPath": "static/image/music.png",
 				"selectedIconPath": "static/image/music.png",
 				"text": "音乐"
+			},
+			{
+				"pagePath": "pages/index/video",
+				"iconPath": "static/image/video.png",
+				"selectedIconPath": "static/image/video.png",
+				"text": "视频"
 			}
 		]
 	}
