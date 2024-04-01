@@ -1,17 +1,23 @@
 <template>
 	<view class="content flex-column">
 		<view class="video-box">
-			<video :src="current.file" autoplay="true"></video>
+			<video :src="current.file" autoplay="true" object-fit="contain" @ended="playEnded"
+				@timeupdate="playTimeupdate"></video>
 		</view>
-		<view>服务器地址：<input v-model="current.server" /></view>
-		<view>服务器接口地址：<input v-model="current.server" /></view>
+		<view>服务器地址：<input v-model="current.server" @input="serverInput" /></view>
+		<view>服务器接口地址：<input v-model="current.api" @input="apiInput" /></view>
+		<view>
+			<button @tap="refresh">刷新</button>
+		</view>
 		<view class="list-box flex-row">
 			<view class="video-list flex-column">
-				<view v-for="(item,index) in videoList" class="item" :class="current.video == item.name ? 'active' : ''" @tap="selectVideo(item, index)">{{item.name}}
+				<view v-for="(item,index) in videoList" class="item" :class="current.video == item.name ? 'active' : ''"
+					@tap="selectVideo(item, index)">{{item.name}}
 				</view>
 			</view>
 			<view class="file-list flex-column">
-				<view v-for="(item,index) in fileList" class="item" :class="current.file == item.name ? 'active' : ''" @tap="playVideo(item, index)">{{item.name}}
+				<view v-for="(item,index) in fileList" class="item" :class="current.file == item.name ? 'active' : ''"
+					@tap="playVideo(item, index)">{{item.name}}
 				</view>
 			</view>
 		</view>
@@ -41,19 +47,32 @@
 					mode: 'asc',
 					playMode: 'asc', // random asc desc single
 				},
-				videoList: [
-					{name:'123123'},
-					{name:'123123'},
-					{name:'123123'},
-					{name:'123123'},
+				videoList: [{
+						name: '123123'
+					},
+					{
+						name: '123123'
+					},
+					{
+						name: '123123'
+					},
+					{
+						name: '123123'
+					},
 				],
-				fileList: [
-					{name:'456456'},
-					{name:'456456'},
-					{name:'456456'},
-					{name:'456456'},
+				fileList: [{
+						name: '456456'
+					},
+					{
+						name: '456456'
+					},
+					{
+						name: '456456'
+					},
+					{
+						name: '456456'
+					},
 				],
-				folder: "/storage/emulated/0/Music/合集一",
 				max: 100,
 				min: 0,
 				process: {
@@ -71,141 +90,63 @@
 		},
 		onLoad() {
 			let that = this;
-			uni.request({
-				url: this.current.api + "/",
-				header: {
-					'X-Requested-With': 'XMLHttpRequest',
-				},
-				success: (res) => {
-					console.log(res);
-					that.videoList = res.data.fileList;
-				}
-			})
-			return;
-			// 计算进度条实际的长度
-			that.processWidth = that.systemInfo.screenWidth * 670 / 750;
-			console.log('processWidth', that.processWidth);
+			that.getVideoList();
 
-			if (uni.getStorageSync('music.current')) {
-				let current = uni.getStorageSync('music.current');
+			if (uni.getStorageSync('video.current')) {
+				let current = uni.getStorageSync('video.current');
 				// 避免新增的字段在覆盖时丢失
 				for (var i in current) {
 					that.current[i] = current[i];
 				}
 			}
-			console.log('current ', JSON.stringify(uni.getStorageSync('music.current')));
+			console.log('current ', JSON.stringify(uni.getStorageSync('video.current')));
 			console.log('current ', JSON.stringify(that.current));
 
-			// #ifdef APP-PLUS
-			plus.io.resolveLocalFileSystemURL(
-				that.folder, //指定的目录
-				function(entry) {
-					var directoryReader = entry.createReader(); //获取读取目录对象
-					directoryReader.readEntries(
-						function(entries) { //历遍子目录即可
-							for (var i = 0; i < entries.length; i++) {
-								// console.log("文件信息：" + entries[i].name);
-								that.musicList.push(entries[i].name);
-
-								if (!that.current.file) {
-									that.current.file = that.musicList[0];
-									that.current.index = 0;
-									that.saveCurrent();
-								}
-							}
-						},
-						function(err) {
-							console.log("访问目录失败");
-						});
-				},
-				function(err) {
-					console.log("访问指定目录失败:" + err.message);
-				});
-			// #endif
-
-			// 
 			if (!that.current.file) {
-				that.current.file = that.musicList[0];
+				that.current.file = that.fileList[0];
 				that.current.index = 0;
 				that.saveCurrent();
 			}
-
-			// 自动播放，需在设置src之前
-			that.innerAudioContext.autoplay = true;
-			that.innerAudioContext.src = "file://" + that.folder + "/" + that.current.file;
-			that.current.duration = that.innerAudioContext.duration;
-			if (that.current.currentTime > 0) {
-				console.log("currentTime ", that.current.currentTime);
-				// 单位为秒，必须是整数
-				//setTimeout(function() {
-				// console.log("currentTime set");
-				// that.innerAudioContext.pause();
-				// that.innerAudioContext.seek(parseInt(that.current.currentTime));
-				// that.innerAudioContext.play();
-				//}, 1000);
-			}
-			// that.innerAudioContext.play();
-
-			that.innerAudioContext.onPlay(() => {
-				console.log('开始播放');
-				if (that.setSeek) {
-					that.innerAudioContext.seek(parseInt(that.current.currentTime));
-					that.setSeek = false;
-				}
-				that.current.duration = that.innerAudioContext.duration;
-			});
-
-			that.innerAudioContext.onError((res) => {
-				console.log(res.errMsg);
-				console.log(res.errCode);
-			});
-
-			that.innerAudioContext.onTimeUpdate((res) => {
-				that.current.currentTime = that.innerAudioContext.currentTime;
-				that.saveCurrent();
-				// 设置进度条
-				that.process.x = that.innerAudioContext.currentTime / that.innerAudioContext.duration * that
-					.processWidth * (750 / that.systemInfo.windowWidth);
-				that.process.score = that.parseSeconds(that.innerAudioContext.currentTime);
-				console.log('音频播放进度更新', that.innerAudioContext.currentTime, that.innerAudioContext.duration, 'x',
-					that.process.x);
-			});
-
-			that.innerAudioContext.onEnded(() => {
-				console.log('播放结束，下一首');
-				if (that.current.playMode == 'asc') {
-					// 正序播放
-					if (that.current.index < (that.musicList.length - 1)) {
-						that.current.index = that.current.index + 1;
-					} else {
-						that.current.index = 0;
-					}
-					that.current.file = that.musicList[that.current.index];
-					// that.playMusic(that.current.file, that.current.index);
-				} else if (that.current.playMode == 'desc') {
-					// 倒序播放
-					if (that.current.index > 0) {
-						that.current.index = that.current.index - 1;
-					} else {
-						that.current.index = that.musicList.length - 1;
-					}
-					that.current.file = that.musicList[that.current.index];
-					// that.playMusic(that.current.file, that.current.index);
-				} else if (that.current.playMode == 'single') {
-					// 单曲循环
-					// that.playMusic(that.current.file, that.current.index);
-				} else if (that.current.playMode == 'random') {
-					// 随机播放
-					that.current.index = Math.floor(Math.random() * that.musicList.length);
-					console.log(that.current.index);
-					that.current.file = that.musicList[that.current.index];
-				}
-				console.log(that.current.playMode, that.current.file, that.current.index);
-				that.playMusic(that.current.file, that.current.index);
-			});
 		},
 		methods: {
-			selectVideo(item,index){
+			getVideoList() {
+				let that = this;
+				uni.request({
+					url: this.current.api + "/",
+					header: {
+						'X-Requested-With': 'XMLHttpRequest',
+					},
+					success: (res) => {
+						console.log(res);
+						that.videoList = res.data.fileList;
+					}
+				});
+			},
+			refresh() {
+				this.getVideoList();
+			},
+			playTimeupdate(event) {
+				let that = this;
+				that.current.currentTime = event.detail.currentTime;
+				that.saveCurrent();
+			},
+			playEnded() {
+				let that = this;
+				that.current.index = that.current.index + 1;
+				that.current.src = that.fileList[that.current.index].url2;
+				that.saveCurrent();
+			},
+			serverInput(event) {
+				let that = this;
+				that.current.server = event.target.value;
+				that.saveCurrent();
+			},
+			apiInput(event) {
+				let that = this;
+				that.current.api = event.target.value;
+				that.saveCurrent();
+			},
+			selectVideo(item, index) {
 				let that = this;
 				uni.request({
 					url: this.current.api + "/list/" + item.name,
@@ -265,7 +206,7 @@
 			playVideo(item, index) {
 				let that = this;
 				that.current.file = item.url2;
-				
+
 				console.log(item.url2);
 
 				that.saveCurrent();
@@ -276,7 +217,7 @@
 			},
 			saveCurrent() {
 				// console.log("saveCurrent");
-				uni.setStorageSync('music.current', this.current);
+				uni.setStorageSync('video.current', this.current);
 			}
 		},
 	}
@@ -289,21 +230,28 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		
-		.list-box{
+
+		.video-box {
+			video {
+				width: 750rpx;
+			}
+		}
+
+		.list-box {
 			height: 100%;
 			width: 750rpx;
-			
-			.video-list{
+
+			.video-list {
 				flex: 1;
 			}
-			
-			.file-list{
+
+			.file-list {
 				flex: 3;
 			}
 		}
 
-		.video-list,.file-list {
+		.video-list,
+		.file-list {
 			// width: 750rpx;
 			// padding-left: 40rpx;
 			// padding-right: 40rpx;
