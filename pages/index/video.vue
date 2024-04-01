@@ -240,6 +240,8 @@
 		.list-box {
 			height: 100%;
 			width: 750rpx;
+			padding-left: 40rpx;
+			padding-right: 40rpx;
 
 			.video-list {
 				flex: 1;
