@@ -6,12 +6,12 @@
 		<view>服务器地址：<input v-model="current.server" /></view>
 		<view>服务器接口地址：<input v-model="current.server" /></view>
 		<view class="list-box flex-row">
-			<view class="video-list flex-column" v-for="(item,index) in videoList">
-				<view class="item" :class="current.video == item.name ? 'active' : ''" @tap="selectVideo(item, index)">{{item.name}}
+			<view class="video-list flex-column">
+				<view v-for="(item,index) in videoList" class="item" :class="current.video == item.name ? 'active' : ''" @tap="selectVideo(item, index)">{{item.name}}
 				</view>
 			</view>
-			<view class="file-list flex-column" v-for="(item,index) in fileList">
-				<view class="item" :class="current.file == item.name ? 'active' : ''" @tap="playVideo(item, index)">{{item.name}}
+			<view class="file-list flex-column">
+				<view v-for="(item,index) in fileList" class="item" :class="current.file == item.name ? 'active' : ''" @tap="playVideo(item, index)">{{item.name}}
 				</view>
 			</view>
 		</view>
@@ -41,8 +41,18 @@
 					mode: 'asc',
 					playMode: 'asc', // random asc desc single
 				},
-				videoList: [],
-				fileList: [],
+				videoList: [
+					{name:'123123'},
+					{name:'123123'},
+					{name:'123123'},
+					{name:'123123'},
+				],
+				fileList: [
+					{name:'456456'},
+					{name:'456456'},
+					{name:'456456'},
+					{name:'456456'},
+				],
 				folder: "/storage/emulated/0/Music/合集一",
 				max: 100,
 				min: 0,
@@ -282,6 +292,7 @@
 		
 		.list-box{
 			height: 100%;
+			width: 750rpx;
 			
 			.video-list{
 				flex: 1;
@@ -293,9 +304,9 @@
 		}
 
 		.video-list,.file-list {
-			width: 750rpx;
-			padding-left: 40rpx;
-			padding-right: 40rpx;
+			// width: 750rpx;
+			// padding-left: 40rpx;
+			// padding-right: 40rpx;
 
 			.item {
 				text-align: left;
