@@ -116,7 +116,7 @@
 				that.current.index = 0;
 				that.saveCurrent();
 			}
-			
+
 			// 自动播放，需在设置src之前
 			that.innerAudioContext.autoplay = true;
 			that.innerAudioContext.src = "file://" + that.folder + "/" + that.current.file;
@@ -125,10 +125,10 @@
 				console.log("currentTime ", that.current.currentTime);
 				// 单位为秒，必须是整数
 				//setTimeout(function() {
-					// console.log("currentTime set");
-					// that.innerAudioContext.pause();
-					// that.innerAudioContext.seek(parseInt(that.current.currentTime));
-					// that.innerAudioContext.play();
+				// console.log("currentTime set");
+				// that.innerAudioContext.pause();
+				// that.innerAudioContext.seek(parseInt(that.current.currentTime));
+				// that.innerAudioContext.play();
 				//}, 1000);
 			}
 			// that.innerAudioContext.play();
@@ -140,8 +140,17 @@
 					that.setSeek = false;
 				}
 				that.current.duration = that.innerAudioContext.duration;
+				that.current.state = 'play';
+				that.saveCurrent();
 			});
 			
+			that.innerAudioContext.onPause(() => {
+				console.log('暂停播放');
+				that.current.duration = that.innerAudioContext.duration;
+				that.current.state = 'pause';
+				that.saveCurrent();
+			});
+
 			that.innerAudioContext.onError((res) => {
 				console.log(res.errMsg);
 				console.log(res.errCode);
