@@ -50,6 +50,7 @@
 					playMode: 'asc', // random asc desc single
 				},
 				musicList: [],
+				// folder: "D:/其他/音乐",
 				folder: "/storage/emulated/0/Music/合集一",
 				max: 100,
 				min: 0,
