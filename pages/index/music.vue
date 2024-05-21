@@ -5,7 +5,7 @@
 			<view class="item" :class="current.playMode=='single'?'active':''" @tap="setPlayMode('single')">单曲循环</view>
 			<view class="item" :class="current.playMode=='random'?'active':''" @tap="setPlayMode('random')">随机播放</view>
 			<view class="item" :class="current.playMode=='desc'?'active':''" @tap="setPlayMode('desc')">倒序播放</view>
-			<view class="item" :class="current.state=='play'?'active':''" @tap="play">播放/暂停</view>
+			<!-- <view class="item" :class="current.state=='play'?'active':''" @tap="play">播放/暂停</view> -->
 		</view>
 		<view class="process-box flex-row">
 			<view class="slider-container" :style="'width:'+(process.slideBarWidth)+'rpx'">
@@ -21,6 +21,15 @@
 
 				<!-- 灰色背景条 -->
 				<view :style="{width: (process.minScore / process.maxScore) * 100 +'%'}"></view>
+			</view>
+		</view>
+		<view class="current-box flex-column mt-20">
+			<view class="music force-center">{{current.file}}</view>
+			<view class="action-list flex-row mt-20">
+				<view class="prev flex-1 force-center" @tap="prev">上一曲</view>
+				<view class="play flex-3 force-center" :class="current.state=='play'?'active':''" @tap="play">播放/暂停
+				</view>
+				<view class="next flex-1 force-center" @tap="next">下一曲</view>
 			</view>
 		</view>
 		<view class="music-list flex-column" v-for="(item,index) in musicList">
@@ -48,6 +57,8 @@
 					index: 0,
 					mode: 'asc',
 					playMode: 'asc', // random asc desc single
+					history: [],
+					historyIndex: 0,
 				},
 				musicList: [],
 				// folder: "D:/其他/音乐",
@@ -144,7 +155,7 @@
 				that.current.state = 'play';
 				that.saveCurrent();
 			});
-			
+
 			that.innerAudioContext.onPause(() => {
 				console.log('暂停播放');
 				that.current.duration = that.innerAudioContext.duration;
@@ -169,36 +180,7 @@
 			});
 
 			that.innerAudioContext.onEnded(() => {
-				console.log('播放结束，下一首');
-				if (that.current.playMode == 'asc') {
-					// 正序播放
-					if (that.current.index < (that.musicList.length - 1)) {
-						that.current.index = that.current.index + 1;
-					} else {
-						that.current.index = 0;
-					}
-					that.current.file = that.musicList[that.current.index];
-					// that.playMusic(that.current.file, that.current.index);
-				} else if (that.current.playMode == 'desc') {
-					// 倒序播放
-					if (that.current.index > 0) {
-						that.current.index = that.current.index - 1;
-					} else {
-						that.current.index = that.musicList.length - 1;
-					}
-					that.current.file = that.musicList[that.current.index];
-					// that.playMusic(that.current.file, that.current.index);
-				} else if (that.current.playMode == 'single') {
-					// 单曲循环
-					// that.playMusic(that.current.file, that.current.index);
-				} else if (that.current.playMode == 'random') {
-					// 随机播放
-					that.current.index = Math.floor(Math.random() * that.musicList.length);
-					console.log(that.current.index);
-					that.current.file = that.musicList[that.current.index];
-				}
-				console.log(that.current.playMode, that.current.file, that.current.index);
-				that.playMusic(that.current.file, that.current.index);
+				that.next();
 			});
 		},
 		methods: {
@@ -246,10 +228,69 @@
 				}
 				this.saveCurrent();
 			},
-			playMusic(file, index) {
+			prev() {
+				let that = this;
+				// 播放记录中有超过一首歌曲
+				if (that.current.history.length > 1 && that.current.historyIndex > 0) {
+					// 当前记录不是第一个，播放前一首
+					that.current.historyIndex = that.current.historyIndex - 1;
+					that.playMusic(that.current.history[that.current.historyIndex].file, that.current.history[that.current
+						.historyIndex].index, that.current.historyIndex);
+				}
+			},
+			next() {
+				let that = this;
+				// 处于历史记录中
+				if (that.current.history.length - 1 > that.current.historyIndex) {
+					that.current.historyIndex = that.current.historyIndex + 1;
+					that.playMusic(that.current.history[that.current.historyIndex].file, that.current.history[that.current
+						.historyIndex].index, that.current.historyIndex);
+				} else {
+					console.log('播放结束，下一首');
+					if (that.current.playMode == 'asc') {
+						// 正序播放
+						if (that.current.index < (that.musicList.length - 1)) {
+							that.current.index = that.current.index + 1;
+						} else {
+							that.current.index = 0;
+						}
+						that.current.file = that.musicList[that.current.index];
+						// that.playMusic(that.current.file, that.current.index);
+					} else if (that.current.playMode == 'desc') {
+						// 倒序播放
+						if (that.current.index > 0) {
+							that.current.index = that.current.index - 1;
+						} else {
+							that.current.index = that.musicList.length - 1;
+						}
+						that.current.file = that.musicList[that.current.index];
+						// that.playMusic(that.current.file, that.current.index);
+					} else if (that.current.playMode == 'single') {
+						// 单曲循环
+						// that.playMusic(that.current.file, that.current.index);
+					} else if (that.current.playMode == 'random') {
+						// 随机播放
+						that.current.index = Math.floor(Math.random() * that.musicList.length);
+						console.log(that.current.index);
+						that.current.file = that.musicList[that.current.index];
+					}
+					console.log(that.current.playMode, that.current.file, that.current.index);
+					that.playMusic(that.current.file, that.current.index);
+				}
+			},
+			playMusic(file, index, historyIndex = -1) {
 				let that = this;
 				that.current.file = file;
 				that.current.index = index;
+				if (historyIndex > 0) {
+					that.current.historyIndex = historyIndex;
+				} else {
+					that.current.historyIndex = that.current.history.length - 1;
+					that.current.history.push({
+						file: file,
+						index: index
+					});
+				}
 				that.innerAudioContext.src = "file://" + that.folder + "/" + file;
 				that.innerAudioContext.play();
 
@@ -279,6 +320,7 @@
 			width: 750rpx;
 			height: 80rpx;
 			line-height: 80rpx;
+			padding: 0rpx 20rpx;
 
 			.item {
 				// width: 250rpx;
